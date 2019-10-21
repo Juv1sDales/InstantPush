@@ -1,0 +1,32 @@
+//Role engine stream send message in real time
+REQUIS 'SocketIO lib'
+REQUIS 'httpServer lib'
+REQUIS 'fs lib'
+REQUIS 'JSON Parse lib'
+REQUIS 'express'
+REQUIS 'bodyParser'
+
+
+Variable : http from 'httpServer lib',io from 'httpServer lib'
+			,fs from 'fs lib',parser from 'JSON Parse lib',app from 'express'
+			,bodyParser from 'bodyParser'
+
+exporte Init -> (params){
+	var configBrute = fs->read(params.str);
+	config = js.parse(configBrute);
+	SI config existe ALORS
+		->app::modifie.port [process::env::PORT | 8080]
+		->app::utilise(bodyParser::encodeURL({etendu a VRAI}))
+		->app::(bodyParser::json())
+}
+
+exporte bind ->(params){
+
+	->httpServer::créeNouveauServeurHTTP
+	->httpServer::AttacheInstanceRouter(params.router);
+	->io::combineAvecServeurHTTP(httpServer)
+}
+
+exporte start -> {
+	httpServe::demmarre()
+}

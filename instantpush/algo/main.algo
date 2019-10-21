@@ -1,0 +1,16 @@
+//Role start prog
+REQUIS 'InstantPush.algo'
+REQUIS 'Router.algo'
+
+Variable : Variable Router from 'Router.algo',
+		   InstantPush from 'InstantPush.algo',
+
+
+
+Router::init()
+
+//**/RestIntantPush = Router::RestIntantPush()
+
+InstantPush::init('./config.json');
+InstantPush::bind(Router);
+InstantPush::start();

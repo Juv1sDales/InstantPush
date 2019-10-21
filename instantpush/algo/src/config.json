@@ -1,0 +1,6 @@
+{
+	"version":1.0,
+	"port":8380,
+	"max":10000,
+	"kee-alive":true
+}

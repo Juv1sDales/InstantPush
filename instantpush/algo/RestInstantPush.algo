@@ -1,0 +1,61 @@
+//Role : Controller
+REQUIS 'Session.algo'
+
+Variable : sessions from 'Session';
+
+exporte index -> fonction(httpReq,httpRes){
+
+	//Check Certificat connection et send message
+	Nouvelle Variable  date  = Date.Ajourdhui
+	->Nouvelle Variable resp = Objet->{
+		etat:FALSE,
+		code:100,
+		message:Objet->{
+			'version':2.0,
+			'InstantPush':'running',
+			'Accès valid':true,
+			'time-request':'300.383ms',
+			'request-id':239383,
+			'datatime':date
+		}
+	};
+
+	->httpRes.send(resp)
+
+}
+
+exporte prepare -> fonction(httpReq,httpRes){
+
+	->Nouvelle Variable resp = Objet->{
+		etat:FALSE,
+		code:100,
+		message:'Enrégistrement impossible'
+	};
+
+	SI httpRes.params EXIST ET NON NULL ALORS
+		->Nouvelle Variable rt = Session::prepare(httpReq.params)
+		->SI rt EGAL A VRAI ALORS
+			->resp::etat = VRAI
+			->resp::code = 200
+			->resp::message = 'Enrégistrement reussi!'
+	
+	->httpRes.send(resp)
+}
+
+exporte push -> (params){
+	->Nouvelle Variable resp = Objet->{
+		etat:FALSE,
+		code:100,
+		message:'Enrégistrement impossible'
+	}
+
+	SI httpRes.params EXIST ET NON NULL ALORS
+		->Nouvelle Variable rt = Session::push(httpReq.params)
+		->SI rt EGAL A VRAI ALORS
+			->resp::etat = VRAI
+			->resp::code = 200
+			->resp::message = 'message envoyé!'
+	
+	->httpRes.send(resp)
+}
+

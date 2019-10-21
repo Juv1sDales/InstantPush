@@ -1,0 +1,120 @@
+//Role : ModelHandler
+var sessions = {};
+
+exporte init ->(params){
+		
+}
+
+exporte prepare -> (params){
+	SI sessions[params.useid] est INDEFINI ALORS
+		->sessions[params.useid] = Objet::Nouveau()
+	->sessions[params.useid][params.sessionid] 
+										= Objet.Nouveau();
+	Affiche'Enrégistrement d\'un utilisateur.'; 
+
+	retourne VRAI
+}
+
+exporte register -> (params){
+	SI sessions[params.useid] EXISTE 
+		ET QUE sessions[useid][sessionid] EXISTE ALORS
+		
+		->params.socket.useid = params.useid;
+		->params.sessionsid   = params.sessionsid;
+		->sessions[params.useid][params.sessionid] 
+									= params.socket
+
+		->Affiche 'Utilisateur '+params.sessionid+' est connecté';
+		->RETURN VRAI
+	SINON
+		->Affiche 'Aucune session enrégistrer en ce nom...';
+
+	R->ETOURNE FAUX
+}
+
+exporte disconnect -> (params){
+	->Nouvelle variable useid = params.socket.useid
+	->Nouvelle variable sessionid = params.socket.sessionid
+	SI useid existe ET QUE sessionid EXISTE  
+		ET QUE sessions[useid][sessionid] est DEFINI ALORS
+
+		->DETRUIT sessions[params.socket.sessionid]
+		->Affiche 'Utilisateur '+sessionid+'deconnecté';
+		->RETOURNE VRAI
+
+	->RETOURNE FAUX
+}
+
+exporte reconnect -> (params){
+
+	SI sessions[params.useid] EXISTE 
+		ET QUE sessions[params.useid][params.sessionid] EXISTE ALORS
+		
+		->params.socket.useid = params.useid;
+		->params.sessionsid   = params.sessionsid;
+		->sessions[params.useid][params.sessionid] 
+									= params.socket
+									
+		->Affiche 'Utilisateur '+params.sessionid+' est reconnecté';
+		->RETOURNE VRAI
+	SINON
+		->Affiche 'Aucune session enrégistrer en ce nom...';
+
+	->RETOURNE FAUX	
+}
+
+exporte push -> (params){
+	SI params.type EGALE 'OnlyUser' ALORS
+		->RETOURNE pushOneUser(params)
+
+	SINON SI params.type EGALE 'GroupUser' ALORS
+		->RETOURNE pushGroup(params)
+
+	SINON SI params.type EGALE 'ChannelUser' ALORS
+		->RETOURNE pushChannel(params)
+
+	//SINON SI params.type EGALE 'AllUser' ALORS
+
+
+}	
+
+pushOneUser -> (params){
+
+	SI params.useid EST DEFINI
+			ET QUE sessions[appid][params.reveiverid] ALORS
+				->sessions[appid][params.reveiverid]
+								::envoie(params.message)
+				->Affiche 'Message envoyé'
+				->RETOURNE VRAI
+	SINON
+		->Affiche'Utilisateur déconnecté'
+		->RETOURNE FAUX
+}
+
+pushGroup -> (params){
+	SI params.useid EST DEFINI ALORS
+		->SI params.receiversids EXISTE ALORS
+
+		POUR i EGAL 0 A i INFERIEUR A params.receiversids-1
+			FAIRE 
+				SI sessions[useid][params.receiversids[i]] 
+									EXISTE ALORS;
+					->sessions[useid][params.receiversids]
+							.envoie(params.message)
+					->RETOURNE VRAI
+
+		->Affiche 'Message envoyé'
+	SINON
+		->Affiche'Utilisateur déconnecté'
+		->RETOURNE FAUX	
+}
+
+pushChannel -> (params){
+	SI params.appid EXIST ET QUE params.sessionsid 
+			EXIST ALORS
+		->sessions[appid][sessionsid]
+					::envoie(params.channel,params.message)
+		->RETOURNE VRAI
+	RETOURNE FAUX
+
+}

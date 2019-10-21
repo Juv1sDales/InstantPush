@@ -1,0 +1,35 @@
+
+//Role : router
+REQUIS 'router of lib express'
+REQUIS 'RestInstantPush.algo'
+
+Variable : router from 'express lib',RestInstantPush form 'RestInstantPush.algo'
+
+exporte Init->(params){
+	->RestInstantPush::init(params)
+}
+
+exporte RestInstantPush -> (){
+	->RETOURNE RestInstantPush
+}
+
+router->default('/',http){
+	->RestInstantPush::index(http.httpReq,http.httpRes)
+}
+
+->router::route('/prepare/:userid')
+		.put(RestInstantPush.prepare)
+
+->router::route('/register/:userid/:sessionid')
+		.put(RestInstantPush.register)
+
+->router::router('/disconnect/:userid/:sessionid')
+		.put(RestInstantPush.disconnect)
+
+->router::router('/reconnect/:userid/:sessionid')
+		.put(RestInstantPush.reconnect)
+
+->router::router('/push/:userid/:sessionid/:message:/:userids')
+		.put(RestInstantPush.push)
+
+exporte router
